@@ -6,11 +6,13 @@ interface registerParams {
   lastName: string;
   email: string;
   password: string;
+  followers?: number;
 }
 
 interface loginParams {
   email: string;
   password: string;
+  followers?: number;
 }
 
 export const register = async ({
@@ -18,10 +20,11 @@ export const register = async ({
   lastName,
   email,
   password,
+  followers,
 }: registerParams) => {
   const findUser = await userModel.findOne({ email });
   if (findUser) {
-    return { data: { message: "User already exists!" }, statusCode: 400 };
+    return { data: "User already exists!", statusCode: 400 };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,16 +33,17 @@ export const register = async ({
     lastName,
     email,
     password: hashedPassword,
+    followers,
   });
   newUser.save();
 
-  return { data: { message: newUser }, statusCode: 201 };
+  return { data: newUser , statusCode: 201 };
 };
 
 export const login = async ({ email, password }: loginParams) => {
   const findUser = await userModel.findOne({ email });
   if (!findUser) {
-    return { data: { message: "Wrong email or password!" }, statusCode: 400 };
+    return { data: "Wrong email or password!", statusCode: 400 };
   }
 
   const passwordMatch = await bcrypt.compare(password, findUser.password);
@@ -49,6 +53,7 @@ export const login = async ({ email, password }: loginParams) => {
         firstName: findUser.firstName,
         lastName: findUser.lastName,
         email: findUser.email,
+        followers: findUser.followers,
       },
       statusCode: 200,
     };
