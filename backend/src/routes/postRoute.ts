@@ -7,6 +7,7 @@ import {
   getComments,
 } from "../services/postServices";
 import { postModel } from "../models/postModel";
+import validateJWT from "../middlewares/validateJWT";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/create", async (req, res) => {
+router.post("/create", validateJWT, async (req, res) => {
   try {
     const { userId, content, likes, comments } = req.body;
     const { data, statusCode } = await createPost({
@@ -34,9 +35,9 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.delete("/delete/:postId", async (req, res) => {
+router.delete("/delete/:postId", validateJWT, async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId } = req.params as { postId: string };
     const { data, statusCode } = await deletePost({ postId });
     res.status(statusCode).json(data);
   } catch {
@@ -54,9 +55,9 @@ router.get("/:postId/comments", async (req, res) => {
   }
 });
 
-router.post("/:postId/comments/create", async (req, res) => {
+router.post("/:postId/comments/create", validateJWT, async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId } = req.params as { postId: string };
     const { userId, content } = req.body;
     const { data, statusCode } = await createComment({
       userId,
@@ -69,9 +70,9 @@ router.post("/:postId/comments/create", async (req, res) => {
   }
 });
 
-router.delete("/:postId/comments/delete/", async (req, res) => {
+router.delete("/:postId/comments/delete/", validateJWT, async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId } = req.params as { postId: string };
     const { userId, commentId } = req.body;
     const { data, statusCode } = await deleteComment({
       userId,

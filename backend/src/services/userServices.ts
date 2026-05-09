@@ -1,6 +1,7 @@
+import "dotenv/config";
 import { userModel } from "../models/userModel";
 import bcrypt from "bcrypt";
-
+import jwt from "jsonwebtoken";
 interface registerParams {
   firstName: string;
   lastName: string;
@@ -37,7 +38,10 @@ export const register = async ({
   });
   newUser.save();
 
-  return { data: newUser , statusCode: 201 };
+  return {
+    data: generateJWT({ firstName, lastName, email, followers }),
+    statusCode: 201,
+  };
 };
 
 export const login = async ({ email, password }: loginParams) => {
@@ -49,15 +53,18 @@ export const login = async ({ email, password }: loginParams) => {
   const passwordMatch = await bcrypt.compare(password, findUser.password);
   if (passwordMatch) {
     return {
-      data: {
+      data: generateJWT({
         firstName: findUser.firstName,
         lastName: findUser.lastName,
         email: findUser.email,
-        followers: findUser.followers,
-      },
+      }),
       statusCode: 200,
     };
   }
 
   return { data: "Wrong email or password", statusCode: 400 };
+};
+
+const generateJWT = (data: any) => {
+  return jwt.sign(data, process.env.SECRET_JWT || "");
 };

@@ -43,7 +43,7 @@ export const deletePost = async ({ postId }: { postId: string }) => {
   }
 };
 
-export const getComments = async ({ postId }: { postId: string | ObjectId }) => {
+export const getComments = async ({ postId }: { postId: string }) => {
   try {
     const post = await postModel.findById(postId);
     if (!post) {
@@ -58,7 +58,7 @@ export const getComments = async ({ postId }: { postId: string | ObjectId }) => 
 
 
 
-export const createComment = async ({ userId, postId, content}: { userId: string | ObjectId, postId: string | ObjectId, content: string }) => {
+export const createComment = async ({ userId, postId, content}: { userId: string | ObjectId, postId: string, content: string }) => {
   try {
     const post = await postModel.findById(postId);
     if (!post) {
@@ -79,7 +79,7 @@ export const createComment = async ({ userId, postId, content}: { userId: string
   }
 };
 
-export const deleteComment = async ({ userId, postId, commentId }: { userId: string | ObjectId, postId: string | ObjectId, commentId: string | ObjectId }) => {
+export const deleteComment = async ({ userId, postId, commentId }: { userId: string | ObjectId, postId: string, commentId: string | ObjectId }) => {
   try {
     const post = await postModel.findById(postId);
     if (!post) {
