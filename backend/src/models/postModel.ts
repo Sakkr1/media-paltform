@@ -4,6 +4,7 @@ export interface Comment {
   userId: string | ObjectId;
   postId: string | ObjectId;
   content: string;
+  _id?: string | ObjectId;
 }
 
 const commentSchema = new Schema<Comment>({
