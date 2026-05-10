@@ -1,24 +1,57 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../context/Auth/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  const { login } = useAuth();
+
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    setError("");
-    if (!email.trim() || !password.trim()) {
-      setError("Please fill in all fields.");
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (!email || !password) {
+      setError("Lack of the entered data");
       return;
     }
+
+    setError("");
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000)); // simulate request
+    const response = await fetch("http://localhost:3000/user/login", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+      headers: {
+        "content-type": "application/json",
+      },
+    }).catch(() => {
+      setError("Network error. Please try again.");
+      return null;
+    });
+    const result = await response?.json();
+    if (!result) {
+      return;
+    }
+
+    if (!response?.ok) {
+      setError(result);
+      setLoading(false);
+      return;
+    }
+
+    login(email, result);
     setLoading(false);
+    navigate("/");
   };
 
   const handleSignupNavigate = () => {
@@ -102,8 +135,7 @@ export default function LoginPage() {
               </label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                ref={emailRef}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 placeholder="you@example.com"
                 className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder-white/20 outline-none focus:border-[#e8ff47]/40 focus:bg-white/7 transition"
@@ -123,8 +155,7 @@ export default function LoginPage() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  ref={passwordRef}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   placeholder="••••••••"
                   className="w-full bg-white/5 border border-white/8 rounded-xl px-4 py-3 pr-11 text-sm text-white placeholder-white/20 outline-none focus:border-[#e8ff47]/40 focus:bg-white/7 transition"
