@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../context/Auth/AuthContext";
 
 interface Post {
   id: number;
@@ -60,30 +61,20 @@ const userPosts: Post[] = [
   },
 ];
 
-type Tab = "posts" | "liked" | "saved";
-
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<Tab>("posts");
   const [following, setFollowing] = useState(false);
   const [followerCount, setFollowerCount] = useState(4821);
 
+  const { isAuthenticated } = useAuth();
+
   const handleFollow = () => {
+    if(!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     setFollowing((v) => !v);
     setFollowerCount((n) => (following ? n - 1 : n + 1));
   };
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "posts", label: "Posts" },
-    { key: "liked", label: "Liked" },
-    { key: "saved", label: "Saved" },
-  ];
-
-  const displayedPosts =
-    activeTab === "posts"
-      ? userPosts
-      : activeTab === "liked"
-        ? userPosts.slice(0, 3)
-        : userPosts.slice(2, 5);
 
   const navigate = useNavigate();
   const onGoHome = () => {
@@ -212,39 +203,13 @@ export default function ProfilePage() {
             </h1>
             <p className="text-sm text-white/35">@layla.h</p>
           </div>
-          <p className="text-sm text-white/60 leading-relaxed max-w-sm">
-            Designer & visual storyteller. Chasing golden hour, building things
-            that feel as good as they look. ✦
-          </p>
-          <div className="flex items-center gap-1.5 text-xs text-white/30">
-            <svg
-              className="w-3.5 h-3.5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={1.8}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-            </svg>
-            Cairo, Egypt
-          </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 mb-8 fade-up-3">
+        <div className="grid grid-cols-2 gap-3 mb-8 fade-up-3">
           {[
             { label: "Posts", value: userPosts.length },
             { label: "Followers", value: followerCount.toLocaleString() },
-            { label: "Following", value: "312" },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -254,107 +219,6 @@ export default function ProfilePage() {
                 {stat.value}
               </p>
               <p className="text-xs text-white/30 mt-0.5">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1 bg-[#141416] border border-white/5 rounded-xl p-1 mb-6 fade-up-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
-                activeTab === tab.key
-                  ? "bg-[#e8ff47] text-black"
-                  : "text-white/35 hover:text-white/60"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Posts Grid */}
-        <div className="grid grid-cols-2 gap-3 pb-16">
-          {displayedPosts.map((post, i) => (
-            <div
-              key={post.id}
-              className="grid-in bg-[#141416] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 hover:scale-[1.01] transition-all duration-200 cursor-pointer"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              {post.image ? (
-                <div className="relative">
-                  <img src={post.image} className="w-full h-40 object-cover" />
-                  <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                    <span className="flex items-center gap-1 text-xs text-white/80">
-                      <svg
-                        className="w-3.5 h-3.5 fill-red-400 stroke-red-400"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-                        />
-                      </svg>
-                      {post.likes}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-white/80">
-                      <svg
-                        className="w-3.5 h-3.5 fill-none stroke-white/80"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-                        />
-                      </svg>
-                      {post.comments}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-4 h-40 flex flex-col justify-between">
-                  <p className="text-sm text-white/70 leading-relaxed line-clamp-4">
-                    {post.content}
-                  </p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-white/5">
-                    <span className="flex items-center gap-1 text-xs text-white/30">
-                      <svg
-                        className="w-3.5 h-3.5 fill-none stroke-white/40"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
-                        />
-                      </svg>
-                      {post.likes}
-                    </span>
-                    <span className="flex items-center gap-1 text-xs text-white/30">
-                      <svg
-                        className="w-3.5 h-3.5 fill-none stroke-white/40"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-                        />
-                      </svg>
-                      {post.comments}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>

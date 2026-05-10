@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../context/Auth/AuthContext";
 
 interface Comment {
   id: number;
@@ -100,7 +101,14 @@ export default function HomePage() {
     {},
   );
 
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const toggleLike = (id: number) => {
+    if(!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     setPosts((prev) =>
       prev.map((p) =>
         p.id === id
@@ -115,6 +123,10 @@ export default function HomePage() {
   };
 
   const toggleFollow = (id: number) => {
+    if(!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
     setPosts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, following: !p.following } : p)),
     );
@@ -172,7 +184,6 @@ export default function HomePage() {
     setShowCreateModal(false);
   };
 
-  const navigate = useNavigate();
   const handleProfileNavigate = () => {
     navigate("/profile");
   };
