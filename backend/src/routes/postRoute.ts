@@ -8,6 +8,7 @@ import {
 } from "../services/postServices";
 import { postModel } from "../models/postModel";
 import validateJWT from "../middlewares/validateJWT";
+import { Types } from "mongoose";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.post("/create", validateJWT, async (req, res) => {
 router.delete("/delete/:postId", validateJWT, async (req, res) => {
   try {
     const { postId } = req.params as { postId: string };
-    const { data, statusCode } = await deletePost({ postId });
+    const { data, statusCode } = await deletePost({ postId: new Types.ObjectId(postId) });
     res.status(statusCode).json(data);
   } catch {
     res.status(500).send("Something went wrong!");
@@ -61,7 +62,7 @@ router.post("/:postId/comments/create", validateJWT, async (req, res) => {
     const { userId, content } = req.body;
     const { data, statusCode } = await createComment({
       userId,
-      postId,
+      postId: new Types.ObjectId(postId),
       content,
     });
     res.status(statusCode).json(data);

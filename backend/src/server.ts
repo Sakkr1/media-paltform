@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import userRouter from "./routes/userRoute";
 import postRouter from "./routes/postRoute";
-import cors from "cors"
+import profileRouter from "./routes/profileRoute";
+import cors from "cors";
 
 const app = express();
 const PORT = 3000;
@@ -12,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/user", userRouter);
 app.use("/posts", postRouter);
+app.use("/profile", profileRouter);
 
 mongoose
   .connect("mongodb://localhost:27017/media")

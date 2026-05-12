@@ -1,10 +1,10 @@
-import mongoose, { Schema, Document, ObjectId } from "mongoose";
+import mongoose, { Schema, Document, ObjectId, Types } from "mongoose";
 
 export interface Comment {
-  userId: string | ObjectId;
-  postId: string | ObjectId;
+  userId: Types.ObjectId;
+  postId: Types.ObjectId;
   content: string;
-  _id?: string | ObjectId;
+  _id?: Types.ObjectId;
 }
 
 const commentSchema = new Schema<Comment>({
@@ -14,7 +14,7 @@ const commentSchema = new Schema<Comment>({
 });
 
 export interface IPost extends Document {
-  userId: string | ObjectId;
+  userId: Types.ObjectId;
   content: string;
   comments?: Comment[];
   likes?: number;

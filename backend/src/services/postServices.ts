@@ -1,9 +1,9 @@
-import { ObjectId } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import { Comment, postModel } from "../models/postModel";
 import { userModel } from "../models/userModel";
 
 type post = {
-  userId: string | ObjectId;
+  userId: Types.ObjectId;
   content: string;
   comments?: Comment[];
   likes?: number;
@@ -29,7 +29,7 @@ export const createPost = async ({
   }
 };
 
-export const deletePost = async ({ postId }: { postId: string }) => {
+export const deletePost = async ({ postId }: { postId: Types.ObjectId }) => {
   try {
     const post = await postModel.findById(postId);
     if (!post) {
@@ -58,7 +58,7 @@ export const getComments = async ({ postId }: { postId: string }) => {
 
 
 
-export const createComment = async ({ userId, postId, content}: { userId: string | ObjectId, postId: string, content: string }) => {
+export const createComment = async ({ userId, postId, content}: { userId: Types.ObjectId, postId: Types.ObjectId, content: string }) => {
   try {
     const post = await postModel.findById(postId);
     if (!post) {
